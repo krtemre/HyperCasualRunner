@@ -69,7 +69,7 @@ public class HorizontalObstacle : MonoBehaviour
     }
     private void Rotate()
     {
-        tr.Rotate(rotateSpeed * Time.fixedDeltaTime * new Vector3(0, 1, 0));
+        tr.Rotate(rotateSpeed * Time.fixedDeltaTime * Vector3.up);
     }
     IEnumerator GoTarget()
     {

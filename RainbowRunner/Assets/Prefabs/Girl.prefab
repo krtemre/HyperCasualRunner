@@ -121,8 +121,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
+  Targets: []
+  targetOfsets: 0
   startPos: {x: -4, y: 0.35, z: -8}
-  speed: {x: 0, y: 0, z: 0}
+  speed: 5
+  navSpeed: 2
+  isFinished: 0
 --- !u!1 &1590292052488443879
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,7 +549,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 90fa7bb6ceea84547a24365b97d8e109, type: 2}
+  - {fileID: 2100000, guid: b19e032234df3a44888710565f0289d6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -681,8 +685,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 90fa7bb6ceea84547a24365b97d8e109, type: 2}
-  - {fileID: 2100000, guid: d610377099a1b584c968310c3a2a2b5f, type: 2}
+  - {fileID: 2100000, guid: b19e032234df3a44888710565f0289d6, type: 2}
+  - {fileID: 2100000, guid: b19e032234df3a44888710565f0289d6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

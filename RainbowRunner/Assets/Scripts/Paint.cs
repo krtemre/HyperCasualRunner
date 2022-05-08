@@ -21,17 +21,15 @@ public class Paint : MonoBehaviour
                 //cast a ray to the plane
                 var Ray = mainCam.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                if (Physics.Raycast(Ray, out hit) && hit.transform.gameObject.tag == "Paintable")
+                if (Physics.Raycast(Ray, out hit) && hit.transform.gameObject.CompareTag("Paintable"))
                 {
-                    //instanciate a brush
                     var go = Instantiate(brush, hit.point + Vector3.forward * -0.1f,  //Get Visible by moving towards the camera
                         new Quaternion(0, 0, 0, 0), transform);
-
                     go.transform.localScale = new Vector3(brushSize, 0.1f, brushSize);
                 }
             }
         }
-        count = (gameObject.transform.childCount / 2);
+        count = gameObject.transform.childCount - 4;
         if(count < 100)
         {
             txt.text = count.ToString() + "%";

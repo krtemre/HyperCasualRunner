@@ -83,4 +83,9 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(loadSceneIndex);
         }
     }
+    public void ExitTheGame()
+    {
+        //Alt+f4 çekmeyin diye yazýlmýþ fonksiyondur.
+        Application.Quit();
+    }
 }

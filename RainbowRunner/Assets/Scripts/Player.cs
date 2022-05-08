@@ -13,21 +13,25 @@ public class Player : MonoBehaviour
     [Header("Slide")]
     public float sensivity = 0.01f;
     private Vector3 mousePos;
-    private Touch touchPos;
+    private Quaternion rot;
+    private Quaternion zeroRot;
 
     public Rigidbody rb;
     public Animator animator;
 
     private bool mouseMoving = false;
     private float mouseDrag;
+
     [HideInInspector]
     public bool isFinished = false;
     private bool movable = false;
     private bool changeCamDir = false;
     public float border = 7f;
 
+    public Slider slider;
     public GameObject paintable;
     public Canvas paintCanvas;
+
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody>();
@@ -41,6 +45,8 @@ public class Player : MonoBehaviour
         paintCanvas.enabled = false;
         animator.SetBool("IsFinished", isFinished);
         animator.SetBool("Movable", movable);
+        zeroRot = Quaternion.Euler(Vector3.zero);
+        slider.value = sensivity;
     }
 
     private void Update()
@@ -67,40 +73,56 @@ public class Player : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             mouseMoving = false;
+            transform.rotation = Quaternion.identity;
         }
-        if (mouseMoving == true)
+        if (mouseMoving)
         {
             mouseDrag = Input.mousePosition.x - mousePos.x;
-
             if (transform.position.x > -border && transform.position.x < border)
             {
-                transform.position = new Vector3(
+                rb.MovePosition(new Vector3(
                         transform.position.x + (mouseDrag * sensivity * Time.deltaTime),
                         transform.position.y,
-                        transform.position.z);
+                        transform.position.z));
+                RotatePlayer(mouseDrag);
             }
             else if (transform.position.x <= -border)
             {
                 if (mouseDrag > 0)
                 {
-                    transform.position = new Vector3(
+                    rb.MovePosition(new Vector3(
                         transform.position.x + (mouseDrag * sensivity * Time.deltaTime),
                         transform.position.y,
-                        transform.position.z);
+                        transform.position.z));
+                    RotatePlayer(mouseDrag);
                 }
             }
             else if (transform.position.x >= border)
             {
                 if (mouseDrag < 0)
                 {
-                    transform.position = new Vector3(
+                    rb.MovePosition(new Vector3(
                         transform.position.x + (mouseDrag * sensivity * Time.deltaTime),
                         transform.position.y,
-                        transform.position.z);
+                        transform.position.z));
+                    RotatePlayer(mouseDrag);
                 }
             }
         }
         #endregion
+    }
+
+    private void RotatePlayer(float travelledX)
+    {
+        if ((Mathf.Abs(transform.rotation.y) * Mathf.Rad2Deg) < 12f)
+        {
+            rot = Quaternion.Euler(travelledX * 0.1f * Vector3.up);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rot, Time.deltaTime);
+        }            
+        else
+        {
+            transform.rotation = Quaternion.Lerp(transform.rotation ,Quaternion.Euler(Vector3.down * transform.rotation.y), Time.deltaTime);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -119,7 +141,7 @@ public class Player : MonoBehaviour
         }
         else //obstacles
         {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z - 1f);
+            this.transform.position += Vector3.back; 
             PlayFall();
         }
         rb.velocity = Vector3.zero;
@@ -168,6 +190,11 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(2f);
         movable = true;
         animator.SetBool("Movable", movable);
+    }
+
+    public void SetSensivity(float sen)
+    {
+        sensivity = sen;
     }
 
 }

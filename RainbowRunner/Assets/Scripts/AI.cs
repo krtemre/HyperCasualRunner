@@ -6,12 +6,18 @@ using UnityEngine.AI;
 public class AI : MonoBehaviour
 {
     public Transform destination;
+    public List<Transform> Targets;
+    public float targetOfsets;
+    private int targetCount = 0;
+
     private NavMeshAgent nav;
     private Rigidbody rb;
     [Space]
     public Vector3 startPos;
     [Space]
-    public Vector3 speed = new Vector3(0f, 0f, 7f);
+    public float speed = 5f;
+    public float navSpeed = 2f;
+
     private Animator animator;
 
     [HideInInspector]
@@ -22,62 +28,72 @@ public class AI : MonoBehaviour
     {
         nav = this.GetComponent<NavMeshAgent>();
         animator = this.GetComponent<Animator>();
+        rb = this.GetComponent<Rigidbody>();
 
         movable = false;
         isFinished = false;
-        rb = this.GetComponent<Rigidbody>();
-        nav.isStopped = true;
-        nav.SetDestination(destination.position);
+        nav.speed = 0f;
     }
     private void Update()
     {
-        nav.SetDestination(destination.position);
+        if (movable == true)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, speed);
+            nav.speed = navSpeed;
+            SetTarget();
+        }
     }
-    public void Begin()
+
+    public void SetTarget()
     {
-        this.transform.position = startPos; 
-        isFinished = false;
-        movable = true;
-
-        animator.SetBool("IsFinished", isFinished);
-        animator.SetBool("Movable", movable);
-        nav.isStopped = false;
+        if(transform.position.z > Targets[targetCount].position.z - 1f || targetCount >= Targets.Count)
+        {
+            if (targetCount + 1 >= Targets.Count)
+                nav.SetDestination(destination.position);
+            else
+            {
+                targetOfsets *= Random.Range(-1, 2);
+                targetCount++;
+                nav.SetDestination(Targets[targetCount].position + Vector3.right * targetOfsets);
+            }
+        }
     }
-
     private void OnTriggerEnter(Collider other)
     {
-        nav.isStopped = true;
-        if (other.CompareTag("End"))
+        rb.velocity = Vector3.zero;
+        nav.speed = 0f;
+        movable = false;
+        animator.SetBool("Movable", movable);
+        nav.enabled = false;
+        if (other.CompareTag("End")) 
         {
             isFinished = true;
-            movable = false;
-
             animator.SetBool("IsFinished", isFinished);
-            animator.SetBool("Movable", movable);
         }
         else //obstacles
-        {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z - 1f);
-            PlayFall();
+        { 
+            this.transform.position += Vector3.back;
+            animator.Play("Fall");
+            StartCoroutine(WaitTillAnim());
         }
-    }
-
-    public void PlayFall()
-    {
-        isFinished = false;
-        movable = false;
-
-        animator.SetBool("IsFinished", isFinished);
-        animator.SetBool("Movable", movable);
-
-        animator.Play("Fall");
-        StartCoroutine(WaitTillAnim());
     }
 
     IEnumerator WaitTillAnim()
     {
         yield return new WaitForSeconds(2f);
+        this.transform.position = startPos;
         Begin();
+    }
+    public void Begin()
+    {
+        transform.position = startPos;
+        nav.enabled = true;
+        targetCount = 0;
+        movable = true;
+        animator.SetBool("Movable", movable);
+
+        targetOfsets *= Random.Range(-1, 2);
+        nav.SetDestination(Targets[0].position + (Vector3.right * targetOfsets));
     }
 
     public void Push()
@@ -86,12 +102,15 @@ public class AI : MonoBehaviour
     }
     IEnumerator PushedAway()
     {
-        movable = false;
         nav.isStopped = true;
-        rb.velocity = new Vector3(0, 0, 0);
+        movable = false;
+        rb.velocity = Vector3.zero;
+
         animator.SetBool("Movable", movable);
         animator.Play("Dizzy");
+
         yield return new WaitForSeconds(2f);
+
         movable = true;
         animator.SetBool("Movable", movable);
         nav.isStopped = false;
