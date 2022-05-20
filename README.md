@@ -1,4 +1,4 @@
-# PanteonGamesHyperCasual
+# HyperCasual
 The demo project for Panteon Games.
 
 The features may be added:
